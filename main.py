@@ -1,11 +1,15 @@
 import keras
 import tensorflow as tf
-from sklearn.datasets import fetch_openml
 
 K = tf.keras.backend
-mnist = fetch_openml('mnist_784', version=1)
-X, y = mnist["data"], mnist["target"]
-X_train, X_valid, y_train, y_valid = X[:60000], X[60000:], y[:60000], y[60000:]
+
+fashion_mnist = keras.datasets.fashion_mnist
+(X_train_full, y_train_full), (X_test, y_test) = fashion_mnist.load_data()
+X_valid, X_train = X_train_full[:5000] / 255.0, X_train_full[5000:] / 255.0
+y_valid, y_train = y_train_full[:5000], y_train_full[5000:]
+
+class_names = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
+"Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
 
 class Sampling(keras.layers.Layer):
     def call(self, inputs):
@@ -33,7 +37,10 @@ class Vae_loss(keras.layers.Layer):
         latent_loss = -0.5 * Sum_layer()(1 + codings_log_var - Exp_layer()(codings_log_var) - Square_layer()(codings_mean), axis=-1)
         self.add_loss(Mean_layer()(latent_loss) / 784.)
         return x
-    
+
+
+def vae_loss_func(codings_log_var, codings_mean):
+    K.mean(-0.5 * K.sum(1 + codings_log_var - K.exp(codings_log_var) - K.square(codings_mean), axis=-1) / 784.)
 
 codings_size = 10
 inputs = keras.layers.Input(shape=[28, 28])
@@ -49,7 +56,7 @@ decoder_inputs = keras.layers.Input(shape=[codings_size])
 x = keras.layers.Dense(100, activation="selu")(decoder_inputs)
 x = keras.layers.Dense(150, activation="selu")(x)
 x = keras.layers.Dense(28 * 28, activation="sigmoid")(x)
-x = Vae_loss()(x, codings_log_var, codings_mean)
+# x = Vae_loss()(x, codings_log_var, codings_mean)
 outputs = keras.layers.Reshape([28, 28])(x)
 variational_decoder = keras.Model(inputs=[decoder_inputs], outputs=[outputs])
 
@@ -59,7 +66,7 @@ variational_ae = keras.Model(inputs=[inputs], outputs=reconstructions)
 
 # latent_loss = -0.5 * Sum_layer()(1 + codings_log_var - Exp_layer()(codings_log_var) - Square_layer()(codings_mean), axis=-1)
 # variational_ae.add_loss(Mean_layer()(latent_loss) / 784.)
-variational_ae.compile(loss="binary_crossentropy", optimizer="rmsprop")
+variational_ae.compile(loss=vae_loss_func, optimizer="rmsprop")
 
 history = variational_ae.fit(X_train, X_train, epochs=50, batch_size=128, validation_data=[X_valid, X_valid])
 
