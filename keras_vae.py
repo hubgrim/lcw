@@ -99,7 +99,7 @@ class Sampling(layers.Layer):
         return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
 
-latent_dim = 2
+latent_dim = 8
 
 encoder_inputs = keras.Input(shape=(28, 28, 1))
 x = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")(encoder_inputs)
@@ -166,8 +166,8 @@ mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 vae = VAE(encoder, decoder)
 vae.compile(optimizer=keras.optimizers.Adam())
 es_callback = keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
-vae.fit(mnist_digits, epochs=30, batch_size=128, callbacks=[es_callback, ts_callback])
+# ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
+vae.fit(mnist_digits, epochs=30, batch_size=128, callbacks=[es_callback])
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 filename = f'_{timestamp}.png'
