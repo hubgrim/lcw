@@ -2,3 +2,9 @@ latent dim = 8
 lr = 0.002
 redo original vae
 FID/KID Score
+
+
+Samples kommen aus dem Latent Space(Random samples aus normal dist mit mean und var verändert)
+latent trick will gaussian so verändern das random samples dem latent space entsrepchen? dann noch mal mean und var?
+kommt nur müll raus
+latent dim 8 darstellen?

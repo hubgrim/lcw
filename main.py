@@ -52,8 +52,8 @@ mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 vae = VAE(encoder, decoder)
 vae.compile(optimizer=keras.optimizers.Adam())
 es_callback = keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-# ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
-vae.fit(mnist_digits, epochs=1, batch_size=128, callbacks=[es_callback])
+ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
+vae.fit(mnist_digits, epochs=1, batch_size=128, callbacks=[es_callback, ts_callback])
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 filename = f'_{timestamp}.png'
