@@ -8,7 +8,7 @@ import keras
 from datetime import datetime
 from plotting import plot_latent_space, plot_label_clusters
 from VAE import CWAE, VAE
-from architecures import standard_encoder, standard_decoder
+from architecures import standard_encoder, standard_decoder, lcw_encoder, lcw_decoder
 
 tf.config.run_functions_eagerly(True)
 
@@ -17,8 +17,8 @@ mnist_digits = np.concatenate([x_train, x_test], axis=0)
 mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 
 latent_dim = 8
-encoder = standard_encoder(latent_dim)
-decoder = standard_decoder(latent_dim)
+encoder = lcw_encoder(latent_dim)
+decoder = lcw_decoder(latent_dim)
 
 vae = VAE(encoder, decoder)
 vae.compile(optimizer=keras.optimizers.Adam())
