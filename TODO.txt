@@ -8,3 +8,7 @@ Samples kommen aus dem Latent Space(Random samples aus normal dist mit mean und 
 latent trick will gaussian so verändern das random samples dem latent space entsrepchen? dann noch mal mean und var?
 kommt nur müll raus
 latent dim 8 darstellen?
+architecture aus lcw nehmen
+
+lcw vs cw2:
+lcw nutzt cw2 als grundlage. danach wird gaussian prior an latent space angeglichen
