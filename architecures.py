@@ -50,7 +50,7 @@ def lcw_encoder(latent_dim):
 
 def lcw_decoder(latent_dim):
     latent_inputs = keras.Input(shape=(latent_dim,))
-    x = layers.Dense(256, use_bias=False, activation="relu")(x)
+    x = layers.Dense(256, use_bias=False, activation="relu")(latent_inputs)
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     decoder_outputs = layers.Dense(28*28, activation="sigmoid")(x)

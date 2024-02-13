@@ -33,7 +33,7 @@ def plot_latent_space(vae, filename, n=30, figsize=15):
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     plt.imshow(figure, cmap="Greys_r")
-    plt.savefig("samples" + filename, dpi=300)
+    plt.savefig(filename, dpi=300)
 
 
 def plot_label_clusters(vae, data, labels, filename):
@@ -44,4 +44,4 @@ def plot_label_clusters(vae, data, labels, filename):
     plt.colorbar()
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
-    plt.savefig("latent_distribution" + filename, dpi=300)
+    plt.savefig(filename, dpi=300)
