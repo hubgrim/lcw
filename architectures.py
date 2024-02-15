@@ -26,7 +26,6 @@ def standard_encoder(latent_dim):
     encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
     return encoder
 
-
 def standard_decoder(latent_dim):
     latent_inputs = keras.Input(shape=(latent_dim,))
     x = layers.Dense(7 * 7 * 64, activation="relu")(latent_inputs)

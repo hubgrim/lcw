@@ -15,13 +15,13 @@ tf.config.run_functions_eagerly(True)
 load_model = False
 model_path = ""
 
-latent_dim = 8
-epochs = 60
+latent_dim = 2
+epochs = 1
 batch_size = 128
 patience = 3
 results_dir = f"results/"
-model_type = "CWAE"
-architecture_type = "lcw"
+model_type = "vae"
+architecture_type = "standard"
 
 # -------END PARAMETERS-------
 if load_model:
