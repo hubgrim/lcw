@@ -1,3 +1,4 @@
+import keras
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -57,7 +58,7 @@ def plot_label_clusters(model, data, labels, filename):
     plt.savefig(filename, dpi=300)
 
 
-def log_results(model, model_type, latent_dim, epochs, results_dir, load_model):
+def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     save_dir = results_dir + f'{model_type}_lat_dim{latent_dim}_epochs_{epochs}_{timestamp}/'
     plots_dir = save_dir + "plots/"
@@ -71,7 +72,7 @@ def log_results(model, model_type, latent_dim, epochs, results_dir, load_model):
 
     plot_latent_space(model, latent_dim, plots_dir + "latent_space.png")
 
-    # (x_train, y_train), _ = keras.datasets.mnist.load_data()
-    # x_train = np.expand_dims(x_train, -1).astype("float32") / 255
-    #
-    # plot_label_clusters(vae, x_train, y_train, plots_dir + "label_clusters.png")
+    if latent_dim == 2:
+        x_train = np.expand_dims(x_train, -1).astype("float32") / 255
+
+        plot_label_clusters(model, x_train, y_train, plots_dir + "label_clusters.png")

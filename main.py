@@ -16,27 +16,27 @@ load_model = False
 model_path = ""
 
 latent_dim = 2
-epochs = 1
+epochs = 60
 batch_size = 128
 patience = 3
 results_dir = f"results/"
-model_type = "vae"
-architecture_type = "standard"
+model_type = "cwae"
+architecture_type = "lcw"
 
 # -------END PARAMETERS-------
 if load_model:
     model = tf.keras.models.load_model(model_path)
 else:
-    (x_train, _), (x_test, _) = keras.datasets.mnist.load_data()
+    (x_train, y_train), (x_test, _) = keras.datasets.mnist.load_data()
     mnist_digits = np.concatenate([x_train, x_test], axis=0)
     mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 
     encoder, decoder = get_architecture(architecture_type, latent_dim)
 
-    model = CWAE(encoder, decoder) if model_type == "CWAE" else VAE(encoder, decoder)
+    model = CWAE(encoder, decoder) if model_type == "cwae" else VAE(encoder, decoder)
     model.compile(optimizer=keras.optimizers.Adam())
-    es_callback = keras.callbacks.EarlyStopping(monitor='loss', patience=patience)
+    es_callback = keras.callbacks.EarlyStopping(monitor='total_loss', patience=patience, mode="min")
     ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
-    model.fit(mnist_digits, epochs=epochs, batch_size=batch_size)
+    model.fit(mnist_digits, epochs=epochs, batch_size=batch_size, callbacks=[es_callback])
 
-log_results(model, model_type, latent_dim, epochs, results_dir, load_model)
+log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train)

@@ -37,7 +37,7 @@ class CWAE(keras.Model):
         self.reconstruction_loss_tracker.update_state(cw_reconstruction_loss)
         self.cw_loss_tracker.update_state(cw_loss)
         return {
-            "loss": self.total_loss_tracker.result(),
+            "total_loss": self.total_loss_tracker.result(),
             "cw_reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "cw_loss": self.cw_loss_tracker.result(),
         }
@@ -81,7 +81,7 @@ class VAE(keras.Model):
         self.reconstruction_loss_tracker.update_state(reconstruction_loss)
         self.kl_loss_tracker.update_state(kl_loss)
         return {
-            "loss": self.total_loss_tracker.result(),
+            "total_loss": self.total_loss_tracker.result(),
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "kl_loss": self.kl_loss_tracker.result(),
         }

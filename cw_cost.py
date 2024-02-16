@@ -13,13 +13,12 @@ def pairwise_distances(x, y=None):
         y = x
     x_np = x.numpy()
     y_np = y.numpy()
+
+    # euclidean distance squared
     distances_np = cdist(x_np, y_np) ** 2
+
     distances_tf = tf.constant(distances_np)
     return distances_tf
-
-
-def euclidean_norm_squared(X, axis):
-    return tf.math.reduce_sum(tf.math.square(tf.math.sqrt(tf.math.reduce_sum(tf.math.square(X), axis=axis))), axis=-1)
 
 
 def cw_normality(X, y=None):
@@ -30,12 +29,13 @@ def cw_normality(X, y=None):
     if y is None:
         y = silverman_rule_of_thumb_normal(N)
 
+    # adjusts for dimensionality; D=2 -> K1=1, D>2 -> K1<1
     K1 = 1.0 / (2.0 * D - 3.0)
 
     A1 = pairwise_distances(X)
     A = tf.reduce_mean(1 / tf.math.sqrt(y + K1 * A1))
 
-    B1 = euclidean_norm_squared(X, axis=1)
+    B1 = tf.square(tf.math.reduce_euclidean_norm(X, axis=1))
     B = 2 * tf.reduce_mean((1 / tf.math.sqrt(y + 0.5 + K1 * B1)))
 
     return (1 / math.sqrt(1 + y)) + tf.cast(A, dtype=tf.float32) - B
