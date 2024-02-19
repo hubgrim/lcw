@@ -78,15 +78,19 @@ def cw_sampling_lcw(first_sample, second_sample, y):
 def euclidean_norm_squared(X, axis=None):
     return tf.reduce_sum(tf.square(X), axis=axis)
 
+
 def squared_euclidean_norm_reconstruction_error(input, output):
     return euclidean_norm_squared(input - output, axis=1)
 
+
 def mean_squared_euclidean_norm_reconstruction_error(x, y):
-    return tf.reduce_mean(squared_euclidean_norm_reconstruction_error(keras.layers.Flatten()(x), keras.layers.Flatten()(y)))
+    return tf.reduce_mean(
+        squared_euclidean_norm_reconstruction_error(keras.layers.Flatten()(x), keras.layers.Flatten()(y)))
+
 
 def cw_sampling(X, y=None):
     def phi_sampling(s, D):
-        return tf.pow(1.0 + 4.0*s/(2.0*D-3), -0.5)
+        return tf.pow(1.0 + 4.0 * s / (2.0 * D - 3), -0.5)
 
     D = tf.cast(tf.shape(X)[1], tf.float32)
     N = tf.cast(tf.shape(X)[0], tf.float32)
@@ -95,21 +99,22 @@ def cw_sampling(X, y=None):
     if y is None:
         y = silverman_rule_of_thumb_normal(N)
 
-    YDistr = tfp.distributions.MultivariateNormalDiag(loc=tf.zeros(D_int, tf.float32), 
-                                                             scale_diag=tf.ones(D_int, tf.float32))
+    YDistr = tfp.distributions.MultivariateNormalDiag(loc=tf.zeros(D_int, tf.float32),
+                                                      scale_diag=tf.ones(D_int, tf.float32))
     Y = YDistr.sample(N_int)
-    T = 1.0/(2.0*N*tf.sqrt(math.pi*y))
+    T = 1.0 / (2.0 * N * tf.sqrt(math.pi * y))
 
     A0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(X, 0), tf.expand_dims(X, 1)), axis=2)
-    A = tf.reduce_sum(phi_sampling(A0/(4*y), D))
+    A = tf.reduce_sum(phi_sampling(A0 / (4 * y), D))
 
     B0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(Y, 0), tf.expand_dims(Y, 1)), axis=2)
-    B = tf.reduce_sum(phi_sampling(B0/(4*y), D))
+    B = tf.reduce_sum(phi_sampling(B0 / (4 * y), D))
 
     C0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(X, 0), tf.expand_dims(Y, 1)), axis=2)
-    C = tf.reduce_sum(phi_sampling(C0/(4*y), D))
+    C = tf.reduce_sum(phi_sampling(C0 / (4 * y), D))
 
-    return T*(A + B - 2*C)
+    return T * (A + B - 2 * C)
+
 
 def cw_sampling_silverman(first_sample, second_sample):
     stddev = tf.math.reduce_std(second_sample)

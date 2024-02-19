@@ -26,6 +26,7 @@ def standard_encoder(latent_dim):
     encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
     return encoder
 
+
 def standard_decoder(latent_dim):
     latent_inputs = keras.Input(shape=(latent_dim,))
     x = layers.Dense(7 * 7 * 64, activation="relu")(latent_inputs)
@@ -57,7 +58,7 @@ def lcw_decoder(latent_dim):
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     decoder_outputs = layers.Dense(28 * 28, activation="sigmoid")(x)
-    decoder_outputs = layers.Reshape([28,28,1])(decoder_outputs)
+    decoder_outputs = layers.Reshape([28, 28, 1])(decoder_outputs)
     decoder = keras.Model(latent_inputs, decoder_outputs, name="decoder")
     return decoder
 

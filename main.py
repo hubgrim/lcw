@@ -15,7 +15,7 @@ tf.config.run_functions_eagerly(True)
 load_model = False
 model_path = ""
 
-latent_dim = 2
+latent_dim = 8
 epochs = 60
 batch_size = 128
 patience = 3
