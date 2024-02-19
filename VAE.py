@@ -1,7 +1,7 @@
 import keras
 import tensorflow as tf
 
-from cw_cost import cw_sampling_silverman, cw_normality
+from cw_cost import cw_sampling_silverman, cw_normality, mean_squared_euclidean_norm_reconstruction_error, cw_sampling
 
 
 class CWAE(keras.Model):
@@ -27,9 +27,9 @@ class CWAE(keras.Model):
         with tf.GradientTape() as tape:
             z_mean, z_log_var, z = self.encoder(data)
             reconstruction = self.decoder(z)
-            cw_reconstruction_loss = tf.math.log(cw_sampling_silverman(data, reconstruction))
+            cw_reconstruction_loss = tf.math.log(mean_squared_euclidean_norm_reconstruction_error(data, reconstruction))
             lambda_val = 1
-            cw_loss = lambda_val * tf.math.log(cw_normality(z))
+            cw_loss = lambda_val * tf.math.log(cw_sampling(z))
             total_loss = tf.cast(cw_reconstruction_loss, dtype=tf.float32) + cw_loss
         grads = tape.gradient(total_loss, self.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
