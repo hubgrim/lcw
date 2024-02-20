@@ -15,7 +15,7 @@ tf.config.run_functions_eagerly(True)
 load_model = False
 model_path = ""
 
-latent_dim = 8
+latent_dim = 2
 epochs = 60
 batch_size = 128
 patience = 12
@@ -37,6 +37,6 @@ else:
     model.compile(optimizer=keras.optimizers.Adam())
     es_callback = keras.callbacks.EarlyStopping(monitor='total_loss', patience=patience, mode="min")
     ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
-    model.fit(mnist_digits, epochs=epochs, batch_size=batch_size, callbacks=[es_callback])
+    model.fit(mnist_digits, epochs=epochs, batch_size=batch_size)
 
 log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train)

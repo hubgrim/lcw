@@ -120,7 +120,7 @@ def cw_sampling_silverman(first_sample, second_sample):
     stddev = tf.math.reduce_std(second_sample)
     N = tf.shape(second_sample)[0]
     gamma = silverman_rule_of_thumb_normal(N)
-    return cw_sampling(first_sample, second_sample, gamma)
+    return cw_sampling_lcw(first_sample, second_sample, gamma)
 
 
 def cw_cost_function(x, y, z, lambda_val):
