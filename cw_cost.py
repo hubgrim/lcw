@@ -6,27 +6,22 @@ from scipy.spatial.distance import cdist
 import math
 
 
-def silverman_rule_of_thumb_normal(N: int) -> float:
-    return (4 / (3 * N)) ** 0.4
+def silverman_rule_of_thumb_normal(N):
+    return tf.pow((4 / (3 * N)), 0.4)
 
 
 def pairwise_distances(x, y=None):
     if y is None:
         y = x
-    x_np = x.numpy()
-    y_np = y.numpy()
-
-    # euclidean distance squared
-    distances_np = cdist(x_np, y_np) ** 2
-
-    distances_tf = tf.constant(distances_np)
-    return distances_tf
+    distances_tf = tf.norm(x[:, None] - y, axis=-1) ** 2
+    return tf.cast(distances_tf, dtype=tf.float64)
 
 
 def cw_normality(X, y=None):
     assert len(X.shape) == 2
 
-    N, D = X.shape
+    D = tf.cast(tf.shape(X)[1], tf.float64)
+    N = tf.cast(tf.shape(X)[0], tf.float64)
 
     if y is None:
         y = silverman_rule_of_thumb_normal(N)
@@ -37,10 +32,10 @@ def cw_normality(X, y=None):
     A1 = pairwise_distances(X)
     A = tf.reduce_mean(1 / tf.math.sqrt(y + K1 * A1))
 
-    B1 = tf.square(tf.math.reduce_euclidean_norm(X, axis=1))
+    B1 = tf.cast(tf.square(tf.math.reduce_euclidean_norm(X, axis=1)), dtype=tf.float64)
     B = 2 * tf.reduce_mean((1 / tf.math.sqrt(y + 0.5 + K1 * B1)))
 
-    return (1 / math.sqrt(1 + y)) + tf.cast(A, dtype=tf.float32) - B
+    return (1 / tf.sqrt(1 + y)) + A - B
 
 
 def phi_sampling(s, D):
@@ -61,7 +56,7 @@ def cw_sampling_lcw(first_sample, second_sample, y):
 
     _, D = first_sample.shape
 
-    T = 1.0 / (2.0 * math.sqrt(math.pi * y))
+    T = 1.0 / (2.0 * tf.sqrt(math.pi * y))
 
     A0 = pairwise_distances(first_sample)
     A = tf.reduce_mean(phi_sampling(A0 / (4 * y), D))
@@ -104,13 +99,16 @@ def cw_sampling(X, y=None):
     Y = YDistr.sample(N_int)
     T = 1.0 / (2.0 * N * tf.sqrt(math.pi * y))
 
-    A0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(X, 0), tf.expand_dims(X, 1)), axis=2)
+    A0 = euclidean_norm_squared(tf.subtract(
+        tf.expand_dims(X, 0), tf.expand_dims(X, 1)), axis=2)
     A = tf.reduce_sum(phi_sampling(A0 / (4 * y), D))
 
-    B0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(Y, 0), tf.expand_dims(Y, 1)), axis=2)
+    B0 = euclidean_norm_squared(tf.subtract(
+        tf.expand_dims(Y, 0), tf.expand_dims(Y, 1)), axis=2)
     B = tf.reduce_sum(phi_sampling(B0 / (4 * y), D))
 
-    C0 = euclidean_norm_squared(tf.subtract(tf.expand_dims(X, 0), tf.expand_dims(Y, 1)), axis=2)
+    C0 = euclidean_norm_squared(tf.subtract(
+        tf.expand_dims(X, 0), tf.expand_dims(Y, 1)), axis=2)
     C = tf.reduce_sum(phi_sampling(C0 / (4 * y), D))
 
     return T * (A + B - 2 * C)
@@ -118,7 +116,7 @@ def cw_sampling(X, y=None):
 
 def cw_sampling_silverman(first_sample, second_sample):
     stddev = tf.math.reduce_std(second_sample)
-    N = tf.shape(second_sample)[0]
+    N = tf.cast(tf.shape(second_sample)[0], tf.float64)
     gamma = silverman_rule_of_thumb_normal(N)
     return cw_sampling_lcw(first_sample, second_sample, gamma)
 
