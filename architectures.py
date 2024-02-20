@@ -45,10 +45,11 @@ def lcw_encoder(latent_dim):
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     x = layers.Dense(256, use_bias=False, activation="relu")(x)
     x = layers.Dense(latent_dim, activation="relu")(x)
-    z_mean = layers.Dense(latent_dim, name="z_mean")(x)
-    z_log_var = layers.Dense(latent_dim, name="z_log_var")(x)
-    z = Sampling()([z_mean, z_log_var])
-    encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
+    # z_mean = layers.Dense(latent_dim, name="z_mean")(x)
+    # z_log_var = layers.Dense(latent_dim, name="z_log_var")(x)
+    # z = Sampling()([z_mean, z_log_var])
+    z = layers.Dense(latent_dim, name="z")(x)
+    encoder = keras.Model(encoder_inputs, [z], name="encoder")
     return encoder
 
 

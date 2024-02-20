@@ -25,7 +25,7 @@ class CWAE(keras.Model):
 
     def train_step(self, data):
         with tf.GradientTape() as tape:
-            z_mean, z_log_var, z = self.encoder(data)
+            z = self.encoder(data)
             reconstruction = self.decoder(z)
             cw_reconstruction_loss = tf.math.log(mean_squared_euclidean_norm_reconstruction_error(data, reconstruction))
             lambda_val = 1
