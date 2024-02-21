@@ -15,7 +15,7 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 load_model = False
 model_path = ""
 
-latent_dim = 2
+latent_dim = 20
 epochs = 60
 batch_size = 128
 patience = 3
