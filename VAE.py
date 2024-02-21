@@ -1,6 +1,5 @@
 import keras
 import tensorflow as tf
-
 from cw_cost import cw_sampling_silverman, cw_normality, mean_squared_euclidean_norm_reconstruction_error, cw_sampling
 
 

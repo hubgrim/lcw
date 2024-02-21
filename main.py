@@ -16,12 +16,13 @@ load_model = False
 model_path = ""
 
 latent_dim = 20
-epochs = 60
+epochs = 1
 batch_size = 128
 patience = 3
 results_dir = f"results/"
 model_type = "cw2"
 architecture_type = "lcw"
+tsne_amount = 150
 
 # -------END PARAMETERS-------
 if load_model:
@@ -43,4 +44,4 @@ else:
               batch_size=batch_size, callbacks=[es_callback])
 
 log_results(model, model_type, latent_dim, epochs,
-            results_dir, load_model, x_train, y_train)
+            results_dir, load_model, x_train, y_train, tsne_amount)

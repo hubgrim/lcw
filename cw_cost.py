@@ -2,7 +2,6 @@ import numpy as np
 import keras
 import tensorflow as tf
 import tensorflow_probability as tfp
-from scipy.spatial.distance import cdist
 import math
 
 

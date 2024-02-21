@@ -1,11 +1,59 @@
-import keras
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import os
 from datetime import datetime
+from sklearn.manifold import TSNE
 
 
-def plot_latent_space(model, latent_dim, filename, n=30, figsize=15):
+def plot_latent_space(model, data, labels, saving_path, perplexity):
+    # copied from amp-cevae/gmmvae/amp-vae/scripts/clustering.py and modified
+    print("-- Start t-SNE plot --")
+    tsne_model = TSNE(n_components=2,
+                      random_state=42,
+                      n_jobs=-1,
+                      verbose=1,
+                      perplexity=perplexity,
+                      init='pca',
+                      )
+    z = model.encoder.predict(data, verbose=0)
+    z = tsne_model.fit_transform(z)
+    z_0 = []
+    z_1 = []
+
+    for i in z:
+        z_0.append(i[0])
+        z_1.append(i[1])
+
+    plt.figure(figsize=(16, 10))
+    plt.scatter(z_0, z_1, c=labels, s=30)
+
+    # create DataFrame of z_0 = 'z_0', z_1 = 'z_1', label = 'label'
+    df = pd.DataFrame({"z_0": z_0, "z_1": z_1, "labels": labels})
+    sns.kdeplot(df, x="z_0", y="z_1", hue="labels", fill=True, thresh=0.2,
+                alpha=0.75, palette=[
+            "#FF5733",  # Vivid Orange
+            "#3498DB",  # Bright Blue
+            "#FFD700",  # Gold
+            "#8E44AD",  # Rich Purple
+            "#2ECC71",  # Emerald Green
+            "#E74C3C",  # Fiery Red
+            "#1ABC9C",  # Turquoise
+            "#F39C12",  # Vibrant Yellow
+            "#9B59B6",  # Royal Purple
+            "#27AE60"  # Fresh Green
+        ]
+                )
+
+    plt.title(f"Latent-Space")
+    plt.xlabel("T1")
+    plt.ylabel("T2")
+    # plt.legend([f"MIC < {lower_threshold}", f"MIC > {upper_threshold}"])
+    plt.savefig(saving_path)
+
+
+def plot_latent_space_gpt(model, latent_dim, filename, n=30, figsize=15):
     # display an n*n 2D manifold of digits in the latent space
     digit_size = 28
     scale = 1.0
@@ -58,9 +106,9 @@ def plot_label_clusters(model, data, labels, filename):
     plt.savefig(filename, dpi=300)
 
 
-def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train):
+def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train, tsne_amount):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = results_dir + f'{model_type}_lat_dim{latent_dim}_epochs_{epochs}_{timestamp}/'
+    save_dir = results_dir + f'{model_type}/lat_dim{latent_dim}_epochs_{epochs}_{timestamp}/'
     plots_dir = save_dir + "plots/"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -70,7 +118,8 @@ def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, 
     # if not load_model:    config lacking info to restore object(decoder encoder)
     #     model.save(save_dir + "model.keras")
 
-    plot_latent_space(model, latent_dim, plots_dir + "latent_space.png")
+    plot_latent_space(model=model, data=x_train[0:tsne_amount], labels=y_train[0:tsne_amount],
+                      saving_path=plots_dir + "tsne.png", perplexity=30)
 
     if latent_dim == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
