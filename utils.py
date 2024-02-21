@@ -53,7 +53,7 @@ def plot_latent_space(model, data, labels, saving_path, perplexity):
     plt.savefig(saving_path)
 
 
-def plot_latent_space_gpt(model, latent_dim, filename, n=30, figsize=15):
+def plot_latent_space_samples(model, latent_dim, filename, n=30, figsize=15):
     # display an n*n 2D manifold of digits in the latent space
     digit_size = 28
     scale = 1.0
@@ -120,6 +120,8 @@ def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, 
 
     plot_latent_space(model=model, data=x_train[0:tsne_amount], labels=y_train[0:tsne_amount],
                       saving_path=plots_dir + "tsne.png", perplexity=30)
+
+    plot_latent_space_samples(model, latent_dim, plots_dir + "samples.png")
 
     if latent_dim == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
