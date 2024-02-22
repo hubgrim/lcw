@@ -15,8 +15,8 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 load_model = False
 model_path = ""
 
-latent_dim = 20
-epochs = 60
+latent_dim = 2
+epochs = 1
 batch_size = 128
 patience = 3
 results_dir = f"results/"
@@ -29,7 +29,7 @@ if load_model:
     model = tf.keras.models.load_model(model_path)
 else:
     (x_train, y_train), (x_test, _) = keras.datasets.mnist.load_data()
-    mnist_digits = np.concatenate([x_train, x_test], axis=0)
+    mnist_digits = np.concatenate([x_train, x_test], axis=0)[0:1000]
     mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
 
     encoder, decoder = get_architecture(architecture_type, latent_dim)

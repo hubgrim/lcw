@@ -27,24 +27,34 @@ def plot_latent_space(model, data, labels, saving_path, perplexity):
         z_1.append(i[1])
 
     plt.figure(figsize=(16, 10))
-    plt.scatter(z_0, z_1, c=labels, s=30)
+    scatter = plt.scatter(z_0, z_1, c=labels, s=30, cmap='viridis')
+    # Get unique labels
+    unique_labels = np.unique(labels)
+
+    # Create legend entries with specific labels and colors
+    legend_entries = [
+        plt.Line2D([0], [0], marker='o', color=scatter.cmap(scatter.norm(label)), markersize=10, label=f'{label}')
+        for label in unique_labels]
+
+    # Add legend
+    plt.legend(handles=legend_entries, title='Legend', loc='upper right')
 
     # create DataFrame of z_0 = 'z_0', z_1 = 'z_1', label = 'label'
     df = pd.DataFrame({"z_0": z_0, "z_1": z_1, "labels": labels})
-    sns.kdeplot(df, x="z_0", y="z_1", hue="labels", fill=True, thresh=0.2,
-                alpha=0.75, palette=[
-            "#FF5733",  # Vivid Orange
-            "#3498DB",  # Bright Blue
-            "#FFD700",  # Gold
-            "#8E44AD",  # Rich Purple
-            "#2ECC71",  # Emerald Green
-            "#E74C3C",  # Fiery Red
-            "#1ABC9C",  # Turquoise
-            "#F39C12",  # Vibrant Yellow
-            "#9B59B6",  # Royal Purple
-            "#27AE60"  # Fresh Green
-        ]
-                )
+    # sns.kdeplot(df, x="z_0", y="z_1", hue="labels", fill=True, thresh=0.2,
+    #             alpha=0.75, palette=[
+    #         "#FF5733",  # Vivid Orange
+    #         "#3498DB",  # Bright Blue
+    #         "#FFD700",  # Gold
+    #         "#8E44AD",  # Rich Purple
+    #         "#2ECC71",  # Emerald Green
+    #         "#E74C3C",  # Fiery Red
+    #         "#1ABC9C",  # Turquoise
+    #         "#F39C12",  # Vibrant Yellow
+    #         "#9B59B6",  # Royal Purple
+    #         "#27AE60"  # Fresh Green
+    #     ]
+    #             )
 
     plt.title(f"Latent-Space")
     plt.xlabel("T1")
