@@ -116,7 +116,7 @@ def plot_label_clusters(model, data, labels, filename):
     plt.savefig(filename, dpi=300)
 
 
-def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, x_train, y_train, tsne_amount):
+def log_results(model, model_type, latent_dim, epochs, results_dir, x_train, y_train, tsne_amount):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     save_dir = results_dir + f'{model_type}/lat_dim{latent_dim}_epochs_{epochs}_{timestamp}/'
     plots_dir = save_dir + "plots/"
@@ -125,8 +125,7 @@ def log_results(model, model_type, latent_dim, epochs, results_dir, load_model, 
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
-    # if not load_model:    config lacking info to restore object(decoder encoder)
-    #     model.save(save_dir + "model.keras")
+    model.save_weights(save_dir + "model.weights.h5")
 
     plot_latent_space(model=model, data=x_train[0:tsne_amount], labels=y_train[0:tsne_amount],
                       saving_path=plots_dir + "tsne.png", perplexity=30)
