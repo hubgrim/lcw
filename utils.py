@@ -122,6 +122,7 @@ def log_results(model, args, x_train, y_train):
     save_dir = args["results_dir"] + f'{args["model_type"]}/{timestamp}/'
     plots_dir = save_dir + "plots/"
     json_filepath = save_dir + "args.json"
+    model_summary_filepath = save_dir + "model_summary.txt"
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -129,13 +130,19 @@ def log_results(model, args, x_train, y_train):
         os.makedirs(plots_dir)
 
     model.save_weights(save_dir + "model.weights.h5")
+
+    with open(model_summary_filepath, "a+") as f:
+        model.encoder.summary(print_fn=lambda x: f.write(x + '\n'))
+        f.write("\n\n")
+        model.decoder.summary(print_fn=lambda x: f.write(x + '\n'))
+
     with open(json_filepath, "w", encoding='utf-8') as f:
         json.dump(args, f, ensure_ascii=False, indent=4)
 
-    plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
-                      saving_path=plots_dir + "tsne.png", perplexity=30)
-
-    plot_latent_space_samples(model, args["latent_dim"], plots_dir + "samples.png")
+    # plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
+    #                   saving_path=plots_dir + "tsne.png", perplexity=30)
+    #
+    # plot_latent_space_samples(model, args["latent_dim"], plots_dir + "samples.png")
 
     if args["latent_dim"] == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
