@@ -12,22 +12,24 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 # tf.config.run_functions_eagerly(True)
 
 # -------BEGIN PARAMETERS-------
-load_model = True
+load_model = False
 model_path = "results/cw2/lat_dim2_epochs_1_20240301_151654/model.weights.h5"
 
-latent_dim = 2
-epochs = 1
+latent_dim = 24
+epochs = 60
 batch_size = 128
 patience = 3
 results_dir = f"results/"
 model_type = "cw2"
 architecture_type = "lcw"
+bias = False
+batch_norm = True
 tsne_amount = 150
 
 # -------END PARAMETERS-------
 (x_train, y_train), (x_test, _) = keras.datasets.mnist.load_data()
 
-encoder, decoder = get_architecture(architecture_type, latent_dim)
+encoder, decoder = get_architecture(architecture_type, latent_dim, bias, batch_norm)
 
 model = CWAE(encoder, decoder) if model_type == "cwae" else CW2(
     encoder, decoder) if model_type == "cw2" else VAE(encoder, decoder)

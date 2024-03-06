@@ -43,12 +43,18 @@ def standard_decoder(latent_dim):
     return decoder
 
 
-def lcw_encoder(latent_dim):
+def lcw_encoder(latent_dim, bias, batch_norm):
     encoder_inputs = keras.Input(shape=(28, 28, 1))
     x = layers.Flatten()(encoder_inputs)
-    x = layers.Dense(256, activation="relu")(x)
-    x = layers.Dense(128, activation="relu")(x)
-    x = layers.Dense(64, activation="relu")(x)
+    x = layers.Dense(256, use_bias=bias)(x)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256, use_bias=bias)(x)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256, use_bias=bias)(x)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
     # z_mean = layers.Dense(latent_dim, name="z_mean")(x)
     # z_log_var = layers.Dense(latent_dim, name="z_log_var")(x)
     # z = Sampling()([z_mean, z_log_var])
@@ -57,19 +63,25 @@ def lcw_encoder(latent_dim):
     return encoder
 
 
-def lcw_decoder(latent_dim):
+def lcw_decoder(latent_dim, bias, batch_norm):
     latent_inputs = keras.Input(shape=(latent_dim,))
-    x = layers.Dense(64, activation="relu")(latent_inputs)
-    x = layers.Dense(128, activation="relu")(x)
-    x = layers.Dense(256, activation="relu")(x)
+    x = layers.Dense(256, use_bias=bias)(latent_inputs)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256, use_bias=bias)(x)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256, use_bias=bias)(x)
+    x = layers.BatchNormalization()(x) if batch_norm else x
+    x = layers.Activation("relu")(x)
     decoder_outputs = layers.Dense(28 * 28, activation="sigmoid")(x)
     decoder_outputs = layers.Reshape([28, 28, 1])(decoder_outputs)
     decoder = keras.Model(latent_inputs, decoder_outputs, name="decoder")
     return decoder
 
 
-def get_architecture(architecture_type, latent_dim):
+def get_architecture(architecture_type, latent_dim, bias, batch_norm):
     if architecture_type == "standard":
         return standard_encoder(latent_dim), standard_decoder(latent_dim)
     elif architecture_type == "lcw":
-        return lcw_encoder(latent_dim), lcw_decoder(latent_dim)
+        return lcw_encoder(latent_dim, bias, batch_norm), lcw_decoder(latent_dim, bias, batch_norm)

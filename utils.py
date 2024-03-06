@@ -117,8 +117,8 @@ def plot_label_clusters(model, data, labels, filename):
 
 
 def log_results(model, model_type, latent_dim, epochs, results_dir, x_train, y_train, tsne_amount):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = results_dir + f'{model_type}/lat_dim{latent_dim}_epochs_{epochs}_{timestamp}/'
+    timestamp = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+    save_dir = results_dir + f'{model_type}/{timestamp}/'
     plots_dir = save_dir + "plots/"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
