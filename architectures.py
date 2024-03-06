@@ -79,6 +79,26 @@ def lcw_decoder(args):
     decoder = keras.Model(latent_inputs, decoder_outputs, name="decoder")
     return decoder
 
+def latent_generator(args):
+    noise_inputs = keras.Input(shape=(args["noise_dim"],))
+    x = layers.Dense(256)(noise_inputs)
+    x = layers.BatchNormalization()(x) if args["batch_norm"] else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256)(x)
+    x = layers.BatchNormalization()(x) if args["batch_norm"] else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256)(x)
+    x = layers.BatchNormalization()(x) if args["batch_norm"] else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256)(x)
+    x = layers.BatchNormalization()(x) if args["batch_norm"] else x
+    x = layers.Activation("relu")(x)
+    x = layers.Dense(256)(x)
+    x = layers.BatchNormalization()(x) if args["batch_norm"] else x
+    x = layers.Activation("relu")(x)
+    z = layers.Dense(args["latent_dim"], name="z")(x)
+    latent_generator = keras.Model(noise_inputs, [z], name="latent_generator")
+    return latent_generator
 
 def get_architecture(args):
     if args["architecture_type"] == "standard":
