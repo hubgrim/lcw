@@ -38,7 +38,7 @@ model = CWAE(encoder, decoder) if args["model_type"] == "cwae" else CW2(
 if args["load_model"]:
     model.load_weights(args["model_path"])
 else:
-    mnist_digits = np.concatenate([x_train, x_test], axis=0)
+    mnist_digits = np.concatenate([x_train, x_test], axis=0)[0:1000]
     mnist_digits = np.expand_dims(mnist_digits, -1).astype("float32") / 255
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001))
     es_callback = keras.callbacks.EarlyStopping(monitor='total_loss', patience=args["patience"], mode="min")

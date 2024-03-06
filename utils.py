@@ -5,6 +5,7 @@ import seaborn as sns
 import os
 from datetime import datetime
 from sklearn.manifold import TSNE
+import json
 
 
 def plot_latent_space(model, data, labels, saving_path, perplexity):
@@ -120,12 +121,16 @@ def log_results(model, args, x_train, y_train):
     timestamp = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
     save_dir = args["results_dir"] + f'{args["model_type"]}/{timestamp}/'
     plots_dir = save_dir + "plots/"
+    json_filepath = save_dir + "args.json"
+
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
     model.save_weights(save_dir + "model.weights.h5")
+    with open(json_filepath, "w", encoding='utf-8') as f:
+        json.dump(args, f, ensure_ascii=False, indent=4)
 
     plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
                       saving_path=plots_dir + "tsne.png", perplexity=30)
