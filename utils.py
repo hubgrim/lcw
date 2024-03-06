@@ -116,9 +116,9 @@ def plot_label_clusters(model, data, labels, filename):
     plt.savefig(filename, dpi=300)
 
 
-def log_results(model, model_type, latent_dim, epochs, results_dir, x_train, y_train, tsne_amount):
+def log_results(model, args, x_train, y_train):
     timestamp = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-    save_dir = results_dir + f'{model_type}/{timestamp}/'
+    save_dir = args["results_dir"] + f'{args["model_type"]}/{timestamp}/'
     plots_dir = save_dir + "plots/"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -127,12 +127,12 @@ def log_results(model, model_type, latent_dim, epochs, results_dir, x_train, y_t
 
     model.save_weights(save_dir + "model.weights.h5")
 
-    plot_latent_space(model=model, data=x_train[0:tsne_amount], labels=y_train[0:tsne_amount],
+    plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
                       saving_path=plots_dir + "tsne.png", perplexity=30)
 
-    plot_latent_space_samples(model, latent_dim, plots_dir + "samples.png")
+    plot_latent_space_samples(model, args["latent_dim"], plots_dir + "samples.png")
 
-    if latent_dim == 2:
+    if args["latent_dim"] == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
 
         plot_label_clusters(model, x_train, y_train, plots_dir + "label_clusters.png")
