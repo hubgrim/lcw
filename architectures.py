@@ -100,8 +100,8 @@ def latent_generator(args):
     latent_generator = keras.Model(noise_inputs, [z], name="latent_generator")
     return latent_generator
 
-def get_architecture(args):
-    if args["architecture_type"] == "standard":
+def get_architecture(args, architecture_type):
+    if architecture_type == "standard":
         return standard_encoder(args), standard_decoder(args)
-    elif args["architecture_type"] == "lcw":
+    elif architecture_type == "lcw":
         return lcw_encoder(args), lcw_decoder(args)
