@@ -1,6 +1,43 @@
 import keras
+import numpy as np
 import tensorflow as tf
 from cw_cost import cw_sampling_silverman, cw_normality, mean_squared_euclidean_norm_reconstruction_error, cw_sampling
+
+
+class LCW(keras.Model):
+    def __init__(self, encoder, decoder, generator, args, **kwargs):
+        super().__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+        self.generator = generator
+        self.noise_dim = args["noise_dim"]
+        self.reconstruction_loss_tracker = keras.metrics.Mean(
+            name="cw_reconstruction_loss"
+        )
+
+    @property
+    def metrics(self):
+        return [
+            self.reconstruction_loss_tracker
+        ]
+
+    def train_step(self, data):
+        with tf.GradientTape() as tape:
+            z = self.encoder(data)
+            batch_size = tf.shape(z)[0]
+            noise_np = np.random.normal(0, 1, size=(self.noise_dim))
+            noise_tf = tf.expand_dims(tf.convert_to_tensor(noise_np), axis=0)
+            noise_tf = tf.repeat(noise_tf, repeats=batch_size, axis=0)
+            noise_z = self.generator(noise_tf)
+            # tf.print(reconstruction)
+            cw_reconstruction_loss = tf.math.log(
+                cw_sampling_silverman(z, noise_z))
+        grads = tape.gradient(cw_reconstruction_loss, self.trainable_weights)
+        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+        self.reconstruction_loss_tracker.update_state(cw_reconstruction_loss)
+        return {
+            "cw_reconstruction_loss": self.reconstruction_loss_tracker.result()
+        }
 
 
 class CW2(keras.Model):

@@ -81,27 +81,27 @@ def lcw_decoder(args):
 
 def latent_generator(args):
     noise_inputs = keras.Input(shape=(args["noise_dim"],))
-    x = layers.Dense(256)(noise_inputs)
+    x = layers.Dense(512)(noise_inputs)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
     z = layers.Dense(args["latent_dim"], name="z")(x)
     latent_generator = keras.Model(noise_inputs, [z], name="latent_generator")
     return latent_generator
 
-def get_architecture(args):
-    if args["architecture_type"] == "standard":
+def get_architecture(args, architecture_type):
+    if architecture_type == "standard":
         return standard_encoder(args), standard_decoder(args)
-    elif args["architecture_type"] == "lcw":
+    elif architecture_type == "lcw":
         return lcw_encoder(args), lcw_decoder(args)
