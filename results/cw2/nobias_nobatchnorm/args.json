@@ -1,0 +1,14 @@
+{
+    "load_model": false,
+    "model_path": "results/cw2/lat_dim2_epochs_1_20240301_151654/model.weights.h5",
+    "latent_dim": 24,
+    "epochs": 60,
+    "batch_size": 128,
+    "patience": 3,
+    "results_dir": "results/",
+    "model_type": "cw2",
+    "architecture_type": "lcw",
+    "bias": false,
+    "batch_norm": false,
+    "tsne_amount": 150
+}
