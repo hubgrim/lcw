@@ -81,19 +81,19 @@ def lcw_decoder(args):
 
 def latent_generator(args):
     noise_inputs = keras.Input(shape=(args["noise_dim"],))
-    x = layers.Dense(256)(noise_inputs)
+    x = layers.Dense(512)(noise_inputs)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
-    x = layers.Dense(256)(x)
+    x = layers.Dense(512)(x)
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
     z = layers.Dense(args["latent_dim"], name="z")(x)
