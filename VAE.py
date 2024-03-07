@@ -25,7 +25,7 @@ class LCW(keras.Model):
         with tf.GradientTape() as tape:
             z = self.encoder(data)
             batch_size = tf.shape(z)[0]
-            noise_np = np.random.normal(0, 1, size=(self.noise_dim))
+            noise_np = np.random.normal(0, 1, size=self.noise_dim)
             noise_tf = tf.expand_dims(tf.convert_to_tensor(noise_np), axis=0)
             noise_tf = tf.repeat(noise_tf, repeats=batch_size, axis=0)
             noise_z = self.generator(noise_tf)

@@ -16,18 +16,18 @@ args = {}
 args["load_model"] = False
 args["model_path"] = "results/cw2/2024_03_07__13_28_18/model.weights.h5"
 
-args["sample_amount"] = 1000
+args["sample_amount"] = 70000
 args["latent_dim"] = 24
 args["noise_dim"] = 24
-args["epochs"] = 1
+args["epochs"] = 60
 args["batch_size"] = 128
 args["patience"] = 3
 args["learning_rate"] = 0.0001
 args["results_dir"] = f"results/"
 args["model_type"] = "lcw"
 args["architecture_type"] = "lcw"
-args["bias"] = False
-args["batch_norm"] = False
+args["bias"] = True
+args["batch_norm"] = True
 args["tsne_amount"] = 150
 
 # -------END PARAMETERS-------
@@ -45,11 +45,11 @@ if args["model_type"] == "lcw":
     cw2_model.fit(mnist_digits, epochs=args["epochs"], batch_size=args["batch_size"], callbacks=[es_callback])
 
     generator = latent_generator(args)
-    lcw_model = LCW(cw2_model.encoder, cw2_model.decoder, generator, args)
-    lcw_model.compile(optimizer=keras.optimizers.Adam(learning_rate=args["learning_rate"]))
-    es_callback = keras.callbacks.EarlyStopping(monitor='cw_reconstruction_loss', patience=args["patience"], mode="min")
-    ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
-    lcw_model.fit(mnist_digits, epochs=args["epochs"], batch_size=args["batch_size"], callbacks=[es_callback])
+    model = LCW(cw2_model.encoder, cw2_model.decoder, generator, args)
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=args["learning_rate"]))
+    es2_callback = keras.callbacks.EarlyStopping(monitor='cw_reconstruction_loss', patience=args["patience"], mode="min")
+    ts2_callback = keras.callbacks.TensorBoard(log_dir="./logs")
+    model.fit(mnist_digits, epochs=args["epochs"], batch_size=args["batch_size"], callbacks=[es2_callback])
 
 else:
     encoder, decoder = get_architecture(args, args["architecture_type"])
@@ -65,4 +65,4 @@ else:
         ts_callback = keras.callbacks.TensorBoard(log_dir="./logs")
         model.fit(mnist_digits, epochs=args["epochs"], batch_size=args["batch_size"], callbacks=[es_callback])
 
-    log_results(model, args, x_train, y_train)
+log_results(model, args, x_train, y_train)

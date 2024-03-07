@@ -64,29 +64,28 @@ def plot_latent_space(model, data, labels, saving_path, perplexity):
     plt.savefig(saving_path)
 
 
-def plot_latent_space_samples(model, latent_dim, filename, n=30, figsize=15):
+def plot_latent_space_samples(args, model, filename, n=30, figsize=15):
     # display an n*n 2D manifold of digits in the latent space
     digit_size = 28
     scale = 1.0
     figure = np.zeros((digit_size * n, digit_size * n))
 
+    input_shape = args["noise_dim"] if args["model_type"] == "lcw" else args["latent_dim"]
+
     # linearly spaced coordinates corresponding to the 2D plot
     # of digit classes in the latent space
-    grid = np.linspace(-scale, scale, n)
-    if latent_dim == 2:
+    if input_shape == 2:
+        grid = np.linspace(-scale, scale, n)
         grid_x, grid_y = np.meshgrid(grid, grid)
         coordinates = np.column_stack((grid_x.flatten(), grid_y.flatten()))
     else:
-        coordinates = np.random.uniform(-scale, scale, size=(n * n, latent_dim))
+        coordinates = np.random.normal(-scale, scale, size=(n * n, input_shape))
 
     for i, z_sample in enumerate(coordinates):
         x_decoded = model.decoder.predict(np.array([z_sample]), verbose=0)
         digit = x_decoded[0].reshape(digit_size, digit_size)
 
-        if latent_dim == 2:
-            j, k = divmod(i, n)
-        else:
-            j, k = divmod(i, n)
+        j, k = divmod(i, n)
 
         figure[
         j * digit_size: (j + 1) * digit_size,
@@ -101,7 +100,7 @@ def plot_latent_space_samples(model, latent_dim, filename, n=30, figsize=15):
     plt.xticks(pixel_range, [])
     plt.yticks(pixel_range, [])
     plt.xlabel("z[0]")
-    plt.ylabel("z[1]" if latent_dim == 2 else "z[1], z[2], ...")
+    plt.ylabel("z[1]" if args["latent_dim"] == 2 else "z[1], z[2], ...")
     plt.imshow(figure, cmap="Greys_r")
     plt.savefig(filename, dpi=300)
 
@@ -135,6 +134,9 @@ def log_results(model, args, x_train, y_train):
         model.encoder.summary(print_fn=lambda x: f.write(x + '\n'))
         f.write("\n\n")
         model.decoder.summary(print_fn=lambda x: f.write(x + '\n'))
+        if args["model_type"] == "lcw":
+            f.write("\n\n")
+            model.generator.summary(print_fn=lambda x: f.write(x + '\n'))
 
     with open(json_filepath, "w", encoding='utf-8') as f:
         json.dump(args, f, ensure_ascii=False, indent=4)
@@ -142,7 +144,7 @@ def log_results(model, args, x_train, y_train):
     plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
                       saving_path=plots_dir + "tsne.png", perplexity=30)
 
-    plot_latent_space_samples(model, args["latent_dim"], plots_dir + "samples.png")
+    plot_latent_space_samples(args, model, plots_dir + "samples.png")
 
     if args["latent_dim"] == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
