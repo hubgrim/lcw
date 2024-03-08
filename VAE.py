@@ -2,18 +2,30 @@ import keras
 import numpy as np
 import tensorflow as tf
 from cw_cost import cw_sampling_silverman, cw_normality, mean_squared_euclidean_norm_reconstruction_error, cw_sampling
-
+from architectures import Cw2Encoder, Cw2Decoder, LcwGenerator
 
 class LCW(keras.Model):
-    def __init__(self, encoder, decoder, generator, args, **kwargs):
+    def __init__(self, encoder, decoder, args, **kwargs):
         super().__init__(**kwargs)
         self.encoder = encoder
         self.decoder = decoder
-        self.generator = generator
-        self.noise_dim = args["noise_dim"]
+        self.generator = LcwGenerator(args).build()
+        self.args = args
         self.reconstruction_loss_tracker = keras.metrics.Mean(
             name="cw_reconstruction_loss"
         )
+    def get_config(self):
+        config = {
+            "encoder": self.encoder,
+            "decoder": self.decoder,
+            "args": self.args
+        }
+        base_config = super(LCW, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def call(self, inputs, **kwargs):
+        x = self.encoder(inputs)
+        return self.decoder(x)
 
     @property
     def metrics(self):
@@ -25,7 +37,7 @@ class LCW(keras.Model):
         with tf.GradientTape() as tape:
             z = self.encoder(data)
             batch_size = tf.shape(z)[0]
-            noise_np = np.random.normal(0, 1, size=self.noise_dim)
+            noise_np = np.random.normal(0, 1, size=self.args["noise_dim"])
             noise_tf = tf.expand_dims(tf.convert_to_tensor(noise_np), axis=0)
             noise_tf = tf.repeat(noise_tf, repeats=batch_size, axis=0)
             noise_z = self.generator(noise_tf)
@@ -41,16 +53,22 @@ class LCW(keras.Model):
 
 
 class CW2(keras.Model):
-    def __init__(self, encoder, decoder, **kwargs):
+    def __init__(self, args, **kwargs):
         super().__init__(**kwargs)
-        self.encoder = encoder
-        self.decoder = decoder
+        self.encoder = Cw2Encoder(args).build()
+        self.decoder = Cw2Decoder(args).build()
+        self.args = args
         self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.reconstruction_loss_tracker = keras.metrics.Mean(
             name="cw_reconstruction_loss"
         )
         self.cw_loss_tracker = keras.metrics.Mean(name="cw_loss")
-
+    def get_config(self):
+        config = {
+            "args": self.args
+        }
+        base_config = super(CW2, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
     @property
     def metrics(self):
         return [

@@ -128,7 +128,7 @@ def log_results(model, args, x_train, y_train):
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
-    model.save_weights(save_dir + "model.weights.h5")
+    model.save(save_dir + "model.keras", save_format="keras")
 
     with open(model_summary_filepath, "a+") as f:
         model.encoder.summary(print_fn=lambda x: f.write(x + '\n'))
@@ -141,10 +141,10 @@ def log_results(model, args, x_train, y_train):
     with open(json_filepath, "w", encoding='utf-8') as f:
         json.dump(args, f, ensure_ascii=False, indent=4)
 
-    plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
-                      saving_path=plots_dir + "tsne.png", perplexity=30)
-
-    plot_latent_space_samples(args, model, plots_dir + "samples.png")
+    # plot_latent_space(model=model, data=x_train[0:args["tsne_amount"]], labels=y_train[0:args["tsne_amount"]],
+    #                   saving_path=plots_dir + "tsne.png", perplexity=args["perplexity"])
+    #
+    # plot_latent_space_samples(args, model, plots_dir + "samples.png")
 
     if args["latent_dim"] == 2:
         x_train = np.expand_dims(x_train, -1).astype("float32") / 255
