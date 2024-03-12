@@ -13,24 +13,22 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 # tf.config.run_functions_eagerly(True)
 
 # -------BEGIN PARAMETERS-------
-args = {}
-args["load_model"] = False
-args["model_path"] = "results/lcw/2024_03_08__17_31_06/model.keras"
-
-args["sample_amount"] = 1000
-args["latent_dim"] = 24
-args["noise_dim"] = 24
-args["epochs"] = 1
-args["batch_size"] = 128
-args["patience"] = 3
-args["learning_rate"] = 0.0001
-args["results_dir"] = f"results/"
-args["model_type"] = "lcw"
-args["architecture_type"] = "lcw"
-args["bias"] = True
-args["batch_norm"] = True
-args["tsne_amount"] = 500
-args["perplexity"] = 10
+args = {"load_model": False,
+        "model_path": "results/lcw/2024_03_08__17_31_06/model.keras",
+        "sample_amount": 1000,
+        "latent_dim": 24,
+        "noise_dim": 24,
+        "epochs": 1,
+        "batch_size": 128,
+        "patience": 3,
+        "learning_rate": 0.0001,
+        "results_dir": f"results/",
+        "model_type": "lcw",
+        "architecture_type": "lcw",
+        "bias": True,
+        "batch_norm": True,
+        "tsne_amount": 500,
+        "perplexity": 10}
 
 # -------END PARAMETERS-------
 (x_train, y_train), (x_test, _) = keras.datasets.mnist.load_data()
