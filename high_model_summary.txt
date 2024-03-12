@@ -1,0 +1,59 @@
+Model: "encoder"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_1 (InputLayer)        [(None, 28, 28, 1)]       0         
+                                                                 
+ flatten (Flatten)           (None, 784)               0         
+                                                                 
+ dense (Dense)               (None, 256)               200960    
+                                                                 
+ activation (Activation)     (None, 256)               0         
+                                                                 
+ z (Dense)                   (None, 24)                6168      
+                                                                 
+=================================================================
+Total params: 207128 (809.09 KB)
+Trainable params: 207128 (809.09 KB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________
+
+
+Model: "encoder"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_2 (InputLayer)        [(None, 24)]              0         
+                                                                 
+ dense_1 (Dense)             (None, 256)               6400      
+                                                                 
+ activation_1 (Activation)   (None, 256)               0         
+                                                                 
+ dense_2 (Dense)             (None, 784)               201488    
+                                                                 
+ reshape (Reshape)           (None, 28, 28, 1)         0         
+                                                                 
+=================================================================
+Total params: 207888 (812.06 KB)
+Trainable params: 207888 (812.06 KB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________
+
+
+Model: "generator"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_3 (InputLayer)        [(None, 24)]              0         
+                                                                 
+ dense_3 (Dense)             (None, 512)               12800     
+                                                                 
+ activation_2 (Activation)   (None, 512)               0         
+                                                                 
+ z (Dense)                   (None, 24)                12312     
+                                                                 
+=================================================================
+Total params: 25112 (98.09 KB)
+Trainable params: 25112 (98.09 KB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________

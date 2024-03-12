@@ -4,46 +4,120 @@ import keras
 from keras import layers
 import numpy as np
 from scipy.spatial.distance import cdist
-
-from cw_cost import cw_sampling_silverman, cw_normality
-
-
-def pairwise_distances_tf(x, y=None):
-    if y is None:
-        y = x
-    x_np = x.numpy()
-    y_np = y.numpy()
-
-    # euclidean distance squared
-    distances_np = cdist(x_np, y_np) ** 2
-
-    distances_tf = tf.constant(distances_np)
-    return distances_tf
+import math
 
 
-def pairwise_distances_tf2(x, y=None):
+#
+# def pairwise_distances_tf(x, y=None):
+#     if y is None:
+#         y = x
+#     x_np = x.numpy()
+#     y_np = y.numpy()
+#
+#     # euclidean distance squared
+#     distances_np = cdist(x_np, y_np) ** 2
+#
+#     distances_tf = tf.constant(distances_np)
+#     return distances_tf
+#
+#
+# def pairwise_distances_tf2(x, y=None):
+#     if y is None:
+#         y = x
+#     distances_tf = tf.norm(x[:, None] - y, axis=-1) ** 2
+#     return distances_tf
+#
+#
+# def pairwise_distances_torch(x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
+#     if y is None:
+#         y = x
+#     return torch.cdist(x, y) ** 2
+#
+#
+# def test_distances():
+#     tf_tensor = tf.constant([[1., 1., 1.], [3., 2., 1.]])
+#     torch_tensor = torch.tensor([[1., 1., 1.], [3., 2., 1.]])
+#     pairwise_distances_tensorflow = pairwise_distances_tf(tf_tensor)
+#     pairwise_distances_pytorch = pairwise_distances_torch(torch_tensor)
+#     pairwise_distances_tensorflow2 = pairwise_distances_tf2(tf_tensor)
+#     torch_n = torch_tensor.size(0)
+#     tf_n = tf.shape(tf_tensor)[0]
+#
+#     print("done")
+
+def silverman_rule_of_thumb_normal(N):
+    return tf.pow((4 / (3 * N)), 0.4)
+
+
+def pairwise_distances(x, y=None):
     if y is None:
         y = x
     distances_tf = tf.norm(x[:, None] - y, axis=-1) ** 2
-    return distances_tf
+    return tf.cast(distances_tf, dtype=tf.float64)
 
 
-def pairwise_distances_torch(x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
+def cw_normality(X, y=None):
+    assert len(X.shape) == 2
+
+    D = tf.cast(tf.shape(X)[1], tf.float64)
+    N = tf.cast(tf.shape(X)[0], tf.float64)
+
     if y is None:
-        y = x
-    return torch.cdist(x, y) ** 2
+        y = silverman_rule_of_thumb_normal(N)
+
+    # adjusts for dimensionality; D=2 -> K1=1, D>2 -> K1<1
+    K1 = 1.0 / (2.0 * D - 3.0)
+
+    A1 = pairwise_distances(X)
+    A = tf.reduce_mean(1 / tf.math.sqrt(y + K1 * A1))
+
+    B1 = tf.cast(tf.square(tf.math.reduce_euclidean_norm(X, axis=1)), dtype=tf.float64)
+    B = 2 * tf.reduce_mean((1 / tf.math.sqrt(y + 0.5 + K1 * B1)))
+
+    return (1 / tf.sqrt(1 + y)) + A - B
 
 
-def test_distances():
-    tf_tensor = tf.constant([[1., 1., 1.], [3., 2., 1.]])
-    torch_tensor = torch.tensor([[1., 1., 1.], [3., 2., 1.]])
-    pairwise_distances_tensorflow = pairwise_distances_tf(tf_tensor)
-    pairwise_distances_pytorch = pairwise_distances_torch(torch_tensor)
-    pairwise_distances_tensorflow2 = pairwise_distances_tf2(tf_tensor)
-    torch_n = torch_tensor.size(0)
-    tf_n = tf.shape(tf_tensor)[0]
+def phi_sampling(s, D):
+    return tf.pow(1.0 + 4.0 * s / (2.0 * D - 3), -0.5)
 
-    print("done")
+
+def cw_sampling_lcw(first_sample, second_sample, y):
+    shape = first_sample.get_shape().as_list()
+    dim = np.prod(shape[1:])
+    first_sample = tf.reshape(first_sample, [-1, dim])
+
+    shape = second_sample.get_shape().as_list()
+    dim = np.prod(shape[1:])
+    second_sample = tf.reshape(second_sample, [-1, dim])
+
+    assert len(first_sample.shape) == 2
+    assert first_sample.shape == second_sample.shape
+
+    _, D = first_sample.shape
+
+    T = 1.0 / (2.0 * tf.sqrt(math.pi * y))
+
+    A0 = pairwise_distances(first_sample)
+    A = tf.reduce_mean(phi_sampling(A0 / (4 * y), D))
+
+    B0 = pairwise_distances(second_sample)
+    B = tf.reduce_mean(phi_sampling(B0 / (4 * y), D))
+
+    C0 = pairwise_distances(first_sample, second_sample)
+    C = tf.reduce_mean(phi_sampling(C0 / (4 * y), D))
+
+    return T * (A + B - 2 * C)
+
+
+def euclidean_norm_squared(X, axis=None):
+    return tf.reduce_sum(tf.square(X), axis=axis)
+
+
+def cw_sampling_silverman(first_sample, second_sample):
+    stddev = tf.math.reduce_std(second_sample)
+    N = tf.cast(tf.shape(second_sample)[0], tf.float64)
+    gamma = silverman_rule_of_thumb_normal(N)
+    return cw_sampling_lcw(first_sample, second_sample, gamma)
 
 
 @tf.keras.saving.register_keras_serializable()
@@ -204,9 +278,7 @@ class HighNet(keras.Model):
 
 
 def test_saving():
-    args = {"load_model": True,
-            "model_path": "results/lcw/2024_03_12__11_56_49/model.keras",
-            "sample_amount": 1000,
+    args = {"sample_amount": 1000,
             "latent_dim": 24,
             "noise_dim": 24,
             "epochs": 1,
@@ -228,6 +300,12 @@ def test_saving():
     model.fit(mnist_digits, epochs=args["epochs"], batch_size=args["batch_size"], callbacks=[es2_callback])
 
     model.save("high_model.keras", save_format="keras")
+    with open("high_model_summary.txt", "w") as f:
+        model.encoder.summary(print_fn=lambda x: f.write(x + '\n'))
+        f.write("\n\n")
+        model.decoder.summary(print_fn=lambda x: f.write(x + '\n'))
+        f.write("\n\n")
+        model.generator.summary(print_fn=lambda x: f.write(x + '\n'))
 
     loaded_model = keras.saving.load_model("high_model.keras")
 
