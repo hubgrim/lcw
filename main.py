@@ -13,8 +13,8 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 # tf.config.run_functions_eagerly(True)
 
 # -------BEGIN PARAMETERS-------
-args = {"load_model": False,
-        "model_path": "results/lcw/2024_03_08__17_31_06/model.keras",
+args = {"load_model": True,
+        "model_path": "results/lcw/2024_03_12__11_56_49/model.keras",
         "sample_amount": 1000,
         "latent_dim": 24,
         "noise_dim": 24,
@@ -40,7 +40,7 @@ if args["model_type"] == "lcw":
     encoder, decoder = get_architecture(args, "lcw")
     generator = latent_generator(args)
     if args["load_model"]:
-        model = tf.keras.saving.load_model(args["model_path"])
+        model = keras.saving.load_model(args["model_path"])
     else:
         cw2_model = CW2(args)
         cw2_model.compile(optimizer=keras.optimizers.Adam(learning_rate=args["learning_rate"]))

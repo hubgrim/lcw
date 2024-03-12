@@ -162,7 +162,7 @@ class LcwGenerator(keras.Model):
         x = self.batchnorm5(x)
         x = self.activation(x)
         z = self.dense6(x)
-        latent_generator = keras.Model(noise_inputs, [z], name="latent_generator")
+        latent_generator = keras.Model(noise_inputs, [z], name="generator")
         return latent_generator
 
 def lcw_decoder(args):
@@ -199,7 +199,7 @@ def latent_generator(args):
     x = layers.BatchNormalization()(x) if args["batch_norm"] else x
     x = layers.Activation("relu")(x)
     z = layers.Dense(args["latent_dim"], name="z")(x)
-    latent_generator = keras.Model(noise_inputs, [z], name="latent_generator")
+    latent_generator = keras.Model(noise_inputs, [z], name="generator")
     return latent_generator
 
 
