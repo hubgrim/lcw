@@ -4,6 +4,7 @@ import tensorflow as tf
 from cw_cost import cw_sampling_silverman, cw_normality, mean_squared_euclidean_norm_reconstruction_error, cw_sampling
 from architectures import Cw2Encoder, Cw2Decoder, LcwGenerator
 
+
 class LCW(keras.Model):
     def __init__(self, encoder, decoder, args, **kwargs):
         super().__init__(**kwargs)
@@ -14,18 +15,6 @@ class LCW(keras.Model):
         self.reconstruction_loss_tracker = keras.metrics.Mean(
             name="cw_reconstruction_loss"
         )
-    def get_config(self):
-        config = {
-            "encoder": self.encoder,
-            "decoder": self.decoder,
-            "args": self.args
-        }
-        base_config = super(LCW, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
-
-    def call(self, inputs, **kwargs):
-        x = self.encoder(inputs)
-        return self.decoder(x)
 
     @property
     def metrics(self):
@@ -63,12 +52,7 @@ class CW2(keras.Model):
             name="cw_reconstruction_loss"
         )
         self.cw_loss_tracker = keras.metrics.Mean(name="cw_loss")
-    def get_config(self):
-        config = {
-            "args": self.args
-        }
-        base_config = super(CW2, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+
     @property
     def metrics(self):
         return [

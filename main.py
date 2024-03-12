@@ -5,7 +5,7 @@ import keras
 import tensorflow as tf
 import numpy as np
 import os
-import h5py
+import dill
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 
@@ -42,7 +42,8 @@ if args["model_type"] == "lcw":
     encoder, decoder = get_architecture(args, "lcw")
     generator = latent_generator(args)
     if args["load_model"]:
-        model = tf.keras.saving.load_model(args["model_path"])
+        with open(args["model_path"], "rb") as f:
+            model = dill.load(f)
     else:
         cw2_model = CW2(args)
         cw2_model.compile(optimizer=keras.optimizers.Adam(learning_rate=args["learning_rate"]))

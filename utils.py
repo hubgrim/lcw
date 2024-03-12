@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 from sklearn.manifold import TSNE
 import json
+import pickle
+import dill
 
 
 def plot_latent_space(model, data, labels, saving_path, perplexity):
@@ -121,6 +123,7 @@ def log_results(model, args, x_train, y_train):
     save_dir = args["results_dir"] + f'{args["model_type"]}/{timestamp}/'
     plots_dir = save_dir + "plots/"
     json_filepath = save_dir + "args.json"
+    model_filepath = save_dir + "model.pickle"
     model_summary_filepath = save_dir + "model_summary.txt"
 
     if not os.path.exists(save_dir):
@@ -128,7 +131,8 @@ def log_results(model, args, x_train, y_train):
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
-    model.save(save_dir + "model.keras", save_format="keras")
+    with open(model_filepath, "wb") as f:
+        dill.dump(model, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     with open(model_summary_filepath, "a+") as f:
         model.encoder.summary(print_fn=lambda x: f.write(x + '\n'))
